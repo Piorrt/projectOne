@@ -1,0 +1,25 @@
+1. zrobić pokoje na serwerze.
+
+imie-rooms
+
+-- nazwa commitu
+   czasownik ---
+
+
+2. polecenia - pozwalające na dołączenie stworzenie nowego pokoju, zapisanie rozmowy
+/join <nazwaPokoju>
+/exit - wraca do głownego
+/quit - rozłącza się
+/sendFile <nazwaPliku>
+
+/private <nazwaUsera> - wysyła prywatną wiadomość do usera
+
+/downloadFile <nazwaPliku>
+/shotDown - wyłaczenie serwer
+
+<sho:>
+
+3. historia - per pokój, zapamiętujemy ostatnie 10 - 50 wiadomości.
+
+
+4. przesyłanie plików - pokój trzyma ostatni plik
