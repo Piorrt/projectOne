@@ -6,25 +6,25 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.util.ArrayList;
 
-public class ClientHolder implements Runnable {
+public class UserChat implements Runnable {
 
-    public static ArrayList<ClientHolder> clientHolders = new ArrayList<>();
-
+    private Server server;
+    private ChatRoom room;
     private Socket socket;
     private BufferedReader reader;
     private BufferedWriter writer;
-    private String clientUserName;
+    private String userName;
 
-    public ClientHolder(Socket socket) {
+    public UserChat(Server server, ChatRoom room, Socket socket) {
         try {
+            this.server = server;
+            this.room = room;
             this.socket = socket;
             this.writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            this.clientUserName = reader.readLine();
-            clientHolders.add(this);
-            broadcastMessage("SERVER: " + clientUserName + " has connected to the chat.");
+            this.userName = reader.readLine();
+            broadcastMessage("SERVER: " + userName + " has connected to room: " + room.getChatRoomName());
         } catch (IOException e) {
             closeAll(socket, reader, writer);
         }
@@ -36,6 +36,11 @@ public class ClientHolder implements Runnable {
         while (socket.isConnected()) {
             try {
                 messagesFromClient = reader.readLine();
+                if (messagesFromClient != null && messagesFromClient.equals("logout")) {
+                    broadcastMessage("User left chat.");
+                    closeAll(socket, reader, writer);
+                    break;
+                }
                 broadcastMessage(messagesFromClient);
             } catch (IOException e) {
                 closeAll(socket, reader, writer);
@@ -45,26 +50,20 @@ public class ClientHolder implements Runnable {
     }
 
     public void broadcastMessage(String message) {
-        for (ClientHolder client: clientHolders) {
-            try {
-                if (!client.clientUserName.equals(this.clientUserName)) {
-                    client.writer.write(message);
-                    client.writer.newLine();
-                    client.writer.flush();
-                }
-            } catch (IOException e) {
-                closeAll(socket, reader, writer);
-            }
+        room.sendMessageToAllUsers(message, userName);
+    }
+
+    public void writeMessage(String message, String fromUser) {
+        try {
+            writer.write("" + room.getChatRoomName() + ":" + fromUser + "-> " +  message);
+            writer.newLine();
+            writer.flush();
+        } catch (IOException e) {
+            closeAll(socket, reader, writer);
         }
     }
 
-    public void removeClient() {
-        clientHolders.remove(this);
-        broadcastMessage("SERVER: " + clientUserName + " has left the chat.");
-    }
-
     public void closeAll(Socket socket, BufferedReader reader, BufferedWriter writer) {
-        removeClient();
         try {
             if(reader != null) {
                 reader.close();
@@ -80,4 +79,7 @@ public class ClientHolder implements Runnable {
         }
     }
 
+    public String getUserName() {
+        return userName;
+    }
 }
