@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 
-public class UserChat implements Runnable {
+public class ChatUser implements Runnable {
 
     private Server server;
     private ChatRoom room;
@@ -16,7 +16,7 @@ public class UserChat implements Runnable {
     private BufferedWriter writer;
     private String userName;
 
-    public UserChat(Server server, ChatRoom room, Socket socket) {
+    public ChatUser(Server server, ChatRoom room, Socket socket) {
         try {
             this.server = server;
             this.room = room;
@@ -36,12 +36,11 @@ public class UserChat implements Runnable {
         while (socket.isConnected()) {
             try {
                 messagesFromClient = reader.readLine();
-                if (messagesFromClient != null && messagesFromClient.equals("logout")) {
-                    broadcastMessage("User left chat.");
-                    closeAll(socket, reader, writer);
-                    break;
+                if (messagesFromClient.startsWith("/")) {
+                    server.commandsHandle(messagesFromClient, this);
+                } else {
+                    broadcastMessage(messagesFromClient);
                 }
-                broadcastMessage(messagesFromClient);
             } catch (IOException e) {
                 closeAll(socket, reader, writer);
                 break;
@@ -81,5 +80,13 @@ public class UserChat implements Runnable {
 
     public String getUserName() {
         return userName;
+    }
+
+    public ChatRoom getRoom() {
+        return room;
+    }
+
+    public void setRoom(ChatRoom room) {
+        this.room = room;
     }
 }
