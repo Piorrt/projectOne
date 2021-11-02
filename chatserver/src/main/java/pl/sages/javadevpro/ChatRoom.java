@@ -5,19 +5,22 @@ import java.util.List;
 
 public class ChatRoom {
 
-    private List<UserChat> users = new ArrayList<>();
+    private List<ChatUser> users = new ArrayList<>();
     private String chatRoomName;
 
-    ///TOD HISTORY
+    ///TODO HISTORY
+
     public ChatRoom(String name) {
         this.chatRoomName = name;
     }
 
-    public void addChatUser(UserChat chatUser) {
+    public void addChatUser(ChatUser chatUser) {
+        sendMessageToAllUsers("-- User: " + chatUser.getUserName() + " connected to chat room --", null);
         users.add(chatUser);
     }
 
-    public void removeChatUser(UserChat chatUser) {
+    public void removeChatUser(ChatUser chatUser) {
+        sendMessageToAllUsers("-- User: " + chatUser.getUserName() + " left chat room --", null);
         users.remove(chatUser);
     }
 
@@ -27,7 +30,7 @@ public class ChatRoom {
 
     public void sendMessageToAllUsers(String message, String fromUser) {
         users.stream()
-            .filter(userChat -> !userChat.getUserName().equals(fromUser))
-            .forEach(userChat -> userChat.writeMessage(message, fromUser));
+            .filter(chatUser -> !chatUser.getUserName().equals(fromUser))
+            .forEach(chatUser -> chatUser.writeMessage(message, fromUser));
     }
 }
