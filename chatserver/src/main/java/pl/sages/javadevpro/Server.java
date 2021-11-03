@@ -52,6 +52,7 @@ public class Server {
         switch (commandParts[0]) {
             case "/join": { handleJoinCommand(commandParts[1], user); break; }
             case "/exit": { handleExitCommand(user); break; }
+            case "/list": { handleListCommand(user); break; }
             default:
                 System.out.println("Command not supported");
         }
@@ -85,5 +86,12 @@ public class Server {
 
         mainChatRoom.addChatUser(user);
         user.setRoom(mainChatRoom);
+    }
+
+    public void handleListCommand(ChatUser user) {
+        List<String> usernames = user.getRoom().getAllUsernames();
+        usernames.stream()
+                .filter(username -> !user.getUserName().equals(username))
+                .forEach(username -> user.writeMessage("-- User: " + username + " is available in the room --", "Room info"));
     }
 }
