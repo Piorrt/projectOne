@@ -36,4 +36,11 @@ public class ChatRoom {
         messageHistoryManager.saveMessage(message,fromUser);
     }
 
+    public List<String> getAllUsernames() {
+        List<String> usernames = new ArrayList<>();
+
+        users.stream()
+                .forEach(chatUser -> usernames.add(chatUser.getUserName()));
+        return usernames;
+    }
 }
