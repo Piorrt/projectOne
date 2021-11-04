@@ -6,8 +6,6 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 public class Server {
 
@@ -53,6 +51,7 @@ public class Server {
         String[] commandParts = command.split(" ");
         switch (commandParts[0]) {
             case "/join": { handleJoinCommand(commandParts[1], user); break; }
+            case "/exit": { handleExitCommand(user); break; }
             default:
                 System.out.println("Command not supported");
         }
@@ -69,5 +68,22 @@ public class Server {
             });
         chatRoom.addChatUser(user);
         user.setRoom(chatRoom);
+    }
+
+    public void handleExitCommand(ChatUser user) {
+        String chatName = user.getRoom().getChatRoomName();
+        final String mainChatName = "#general";
+
+        if(chatName.equals(mainChatName))
+            return;
+
+        user.getRoom().removeChatUser(user);
+
+        ChatRoom mainChatRoom = rooms.stream()
+                .filter(r -> r.getChatRoomName().equals(mainChatName))
+                .findFirst().get();
+
+        mainChatRoom.addChatUser(user);
+        user.setRoom(mainChatRoom);
     }
 }
