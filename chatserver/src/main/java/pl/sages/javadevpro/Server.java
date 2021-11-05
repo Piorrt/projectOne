@@ -1,11 +1,15 @@
 package pl.sages.javadevpro;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Server {
 
@@ -54,6 +58,8 @@ public class Server {
             case "/exit": { handleExitCommand(user); break; }
             case "/quit": { handleQuitCommand(user); break; }
             case "/list": { handleListCommand(user); break; }
+            case "/files": { handleFilesCommand(user); break; }
+
             default:
                 System.out.println("Command not supported");
         }
@@ -97,8 +103,32 @@ public class Server {
 
     public void handleListCommand(ChatUser user) {
         List<String> usernames = user.getRoom().getAllUsernames();
+
+        if (usernames.size() < 2) {
+            user.writeMessage("-- You are the only user in this room --", "Room info");
+            return;
+        }
+
         usernames.stream()
                 .filter(username -> !user.getUserName().equals(username))
                 .forEach(username -> user.writeMessage("-- User: " + username + " is available in the room --", "Room info"));
+    }
+
+    public void handleFilesCommand(ChatUser user) {
+        String dirname = user.getRoom().getChatRoomName().substring(1);
+        File targetDir = new File("files", dirname);
+        File[] files = targetDir.listFiles();
+        Boolean thereAreNoFilesInThisRoom = true;
+
+        for (File file : files) {
+            if (file.isFile()) {
+                user.writeMessage("-- File: " + file.getName() + " is available in the room --", "Room info");
+                thereAreNoFilesInThisRoom = false;
+            }
+        }
+
+        if (thereAreNoFilesInThisRoom.equals(true)) {
+            user.writeMessage("-- There are no files in this room --", "Room info");
+        }
     }
 }

@@ -16,6 +16,7 @@ public class Client {
     private BufferedWriter writer;
     private String userName;
     private volatile boolean isConnected;
+    private String roomName;
 
 
     public Client(Socket socket, String userName) {
@@ -25,6 +26,8 @@ public class Client {
             this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.isConnected = true;
             this.userName = userName;
+            this.roomName = "general";
+
         } catch (IOException e) {
             closeAll(socket, reader, writer);
         }
@@ -45,6 +48,32 @@ public class Client {
                     writer.flush();
                 }
                 if (handleQuitCommand(messageToSend)){ return; }
+
+
+//                String messageToSend = scanner.nextLine();
+//                String[] messageParts = messageToSend.split(" ", 2);
+//                switch (messageParts[0]) {
+//                    case "/send":
+//                        handleSendFileCommand(messageParts[1]);
+//                        break;
+//                    case "/download":
+//                        handleDownloadFileCommand(messageParts[1]);
+//                        break;
+//                    case "/join":
+//                        this.roomName = messageParts[1].substring(1);
+//                        handleSendMessage(messageToSend);
+//                        break;
+//                    case "/exit":
+//                        this.roomName = "#general".substring(1);
+//                        handleSendMessage(messageToSend);
+//                        break;
+//                    case "/quit":
+//                        handleQuitCommand();
+//                        return;
+//                    default:
+//                        handleSendMessage(messageToSend);
+//                }
+
             }
         } catch (IOException e) {
             closeAll(socket, reader, writer);
@@ -69,14 +98,30 @@ public class Client {
         }).start();
     }
 
-    public boolean handleQuitCommand(String quitCommand) {
-        if(quitCommand.equals("/quit")) {
-            this.isConnected = false;
-            closeAll(this.socket, this.reader, this.writer);
-            System.out.println("You has disconnected from server.");
-            return true;
-        }
-        return false;
+    public void handleSendMessage(String messageToSend) throws IOException {
+        writer.write(messageToSend);
+        writer.newLine();
+        writer.flush();
+    }
+
+    public void handleSendFileCommand(String fileName) throws IOException {
+        Socket ftpSocket = new Socket("localhost", 8888);
+        FTPSender ftpSender = new FTPSender(ftpSocket, fileName, roomName);
+        Thread thread = new Thread(ftpSender);
+        thread.start();
+    }
+
+    public void handleDownloadFileCommand(String fileName) throws IOException {
+        Socket ftpSocket = new Socket("localhost", 8888);
+        FTPDownloader ftpDownloader = new FTPDownloader(ftpSocket, fileName, roomName);
+        Thread thread = new Thread(ftpDownloader);
+        thread.start();
+    }
+
+    public void handleQuitCommand() {
+        this.isConnected = false;
+        closeAll(this.socket, this.reader, this.writer);
+        System.out.println("You has disconnected from server.");
     }
 
     public void closeAll(Socket socket, BufferedReader reader, BufferedWriter writer) {
