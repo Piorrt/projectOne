@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Client {
@@ -38,9 +39,11 @@ public class Client {
             Scanner scanner = new Scanner(System.in);
             while (socket.isConnected()) {
                 String messageToSend = scanner.nextLine();
-                writer.write(messageToSend);
-                writer.newLine();
-                writer.flush();
+                if (isCorrectInput(messageToSend)) {
+                    writer.write(messageToSend);
+                    writer.newLine();
+                    writer.flush();
+                }
                 if (handleQuitCommand(messageToSend)){ return; }
             }
         } catch (IOException e) {
@@ -89,6 +92,32 @@ public class Client {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public boolean isCorrectInput(String inputText) {
+        if (inputText.startsWith("/")) {
+            return isCorrectCommand(inputText);
+    }
+        return true;
+    }
+
+    public boolean isCorrectCommand(String inputText) {
+        String[] commandParts = inputText.split(" ");
+        switch (commandParts[0]) {
+            case "/join": {
+                return true;
+            }
+            case "/exit": {
+                return true;
+            }
+            case "/list": {
+                return true;
+            }
+            default: {
+                System.out.println("Command not supported");
+                return false;
+            }
         }
     }
 }
