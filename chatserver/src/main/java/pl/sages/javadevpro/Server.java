@@ -52,6 +52,7 @@ public class Server {
         switch (commandParts[0]) {
             case "/join": { handleJoinCommand(commandParts[1], user); break; }
             case "/exit": { handleExitCommand(user); break; }
+            case "/quit": { handleQuitCommand(user); break; }
             case "/list": { handleListCommand(user); break; }
             default:
                 System.out.println("Command not supported");
@@ -86,6 +87,12 @@ public class Server {
 
         mainChatRoom.addChatUser(user);
         user.setRoom(mainChatRoom);
+    }
+    public void handleQuitCommand(ChatUser user) {
+        user.getRoom().removeChatUser(user);
+        user.closeAll(user.getSocket(), user.getReader(), user.getWriter());
+        rooms.remove(user);
+        System.out.println("Client " + user.getUserName() + " has disconnected.");
     }
 
     public void handleListCommand(ChatUser user) {
