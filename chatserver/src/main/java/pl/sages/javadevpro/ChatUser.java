@@ -58,7 +58,7 @@ public class ChatUser implements Runnable {
             writer.newLine();
             writer.flush();
         } catch (IOException e) {
-            closeAll(getSocket(), getReader(), getWriter());
+            closeAll(socket, reader, writer);
         }
     }
 
@@ -78,6 +78,11 @@ public class ChatUser implements Runnable {
         }
     }
 
+    public void closeUser(){
+        closeAll(socket, reader, writer);
+    }
+
+
     public String getUserName() {
         return userName;
     }
@@ -90,15 +95,4 @@ public class ChatUser implements Runnable {
         this.room = room;
     }
 
-    public Socket getSocket() {
-        return socket;
-    }
-
-    public BufferedReader getReader() {
-        return reader;
-    }
-
-    public BufferedWriter getWriter() {
-        return writer;
-    }
 }

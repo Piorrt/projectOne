@@ -14,7 +14,7 @@ public class Client {
     private BufferedReader reader;
     private BufferedWriter writer;
     private String userName;
-    private boolean isConnected;
+    private volatile boolean isConnected;
 
 
     public Client(Socket socket, String userName) {
@@ -36,14 +36,13 @@ public class Client {
             writer.flush();
 
             Scanner scanner = new Scanner(System.in);
-            while (isConnected) {
+            while (socket.isConnected()) {
                 String messageToSend = scanner.nextLine();
                 writer.write(messageToSend);
                 writer.newLine();
                 writer.flush();
-                handleQuitCommand(messageToSend);
+                if (handleQuitCommand(messageToSend)){ return; }
             }
-
         } catch (IOException e) {
             closeAll(socket, reader, writer);
         }
@@ -67,12 +66,14 @@ public class Client {
         }).start();
     }
 
-    public void handleQuitCommand(String quitCommand) {
+    public boolean handleQuitCommand(String quitCommand) {
         if(quitCommand.equals("/quit")) {
             this.isConnected = false;
             closeAll(this.socket, this.reader, this.writer);
             System.out.println("You has disconnected from server.");
+            return true;
         }
+        return false;
     }
 
     public void closeAll(Socket socket, BufferedReader reader, BufferedWriter writer) {

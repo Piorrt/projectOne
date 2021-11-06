@@ -90,8 +90,8 @@ public class Server {
     }
     public void handleQuitCommand(ChatUser user) {
         user.getRoom().removeChatUser(user);
-        user.closeAll(user.getSocket(), user.getReader(), user.getWriter());
-        rooms.remove(user);
+        user.closeUser();
+        users.remove(user);
         System.out.println("Client " + user.getUserName() + " has disconnected.");
     }
 
