@@ -89,4 +89,8 @@ public class ChatUser implements Runnable {
     public void setRoom(ChatRoom room) {
         this.room = room;
     }
+
+    public void closeUser(){
+        closeAll(this.socket, this.reader, this.writer);
+    }
 }

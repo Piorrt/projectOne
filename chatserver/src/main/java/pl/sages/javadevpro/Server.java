@@ -53,6 +53,7 @@ public class Server {
             case "/join": { handleJoinCommand(commandParts[1], user); break; }
             case "/exit": { handleExitCommand(user); break; }
             case "/list": { handleListCommand(user); break; }
+            case "/quit": { handleQuitCommand(user); break; }
             default:
                 System.out.println("Command not supported");
         }
@@ -61,12 +62,12 @@ public class Server {
     public void handleJoinCommand(String chatName, ChatUser user) {
         user.getRoom().removeChatUser(user);
         ChatRoom chatRoom = rooms.stream()
-            .filter(r -> r.getChatRoomName().equals(chatName))
-            .findFirst().orElseGet(() -> {
-                ChatRoom room = new ChatRoom(chatName);
-                rooms.add(room);
-                return room;
-            });
+                .filter(r -> r.getChatRoomName().equals(chatName))
+                .findFirst().orElseGet(() -> {
+                    ChatRoom room = new ChatRoom(chatName);
+                    rooms.add(room);
+                    return room;
+                });
         chatRoom.addChatUser(user);
         user.setRoom(chatRoom);
     }
@@ -94,4 +95,13 @@ public class Server {
                 .filter(username -> !user.getUserName().equals(username))
                 .forEach(username -> user.writeMessage("-- User: " + username + " is available in the room --", "Room info"));
     }
+
+
+    public void handleQuitCommand(ChatUser user) {
+        user.getRoom().removeChatUser(user);
+        user.closeUser();
+        users.remove(user);
+        System.out.println("Client disconnected");
+    }
+
 }
