@@ -14,6 +14,7 @@ public class Client {
     private BufferedReader reader;
     private BufferedWriter writer;
     private String userName;
+    private boolean connectionIsOpen;
 
 
     public Client(Socket socket, String userName) {
@@ -22,6 +23,7 @@ public class Client {
             this.writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.userName = userName;
+            this.connectionIsOpen = true;
         } catch (IOException e) {
             closeAll(socket, reader, writer);
         }
@@ -34,14 +36,33 @@ public class Client {
             writer.flush();
 
             Scanner scanner = new Scanner(System.in);
-            while (socket.isConnected()) {
+            while (connectionIsOpen) {
                 String messageToSend = scanner.nextLine();
-                writer.write(messageToSend);
-                writer.newLine();
-                writer.flush();
+                String[] messageParts = messageToSend.split(" ");
+                switch (messageParts[0]) {
+                    case "/quit": { handleQuitCommand(); break; }
+                    default:
+                        writer.write(messageToSend);
+                        writer.newLine();
+                        writer.flush();
+                }
             }
         } catch (IOException e) {
             closeAll(socket, reader, writer);
+        }
+    }
+
+    private void handleQuitCommand() {
+        try {
+            writer.write("/quit");
+            writer.newLine();
+            writer.flush();
+        } catch (IOException e) {
+            System.out.println("Could not send quit information to the server. Closing the chat anyway.");
+        }
+        finally {
+            closeAll(socket,reader,writer);
+            this.connectionIsOpen = false;
         }
     }
 
@@ -51,7 +72,7 @@ public class Client {
             public void run() {
                 String msgFromGroupChat;
 
-                while(socket.isConnected()) {
+                while(connectionIsOpen) {
                     try {
                         msgFromGroupChat = reader.readLine();
                         System.out.println(msgFromGroupChat);
@@ -78,4 +99,5 @@ public class Client {
             e.printStackTrace();
         }
     }
+
 }
