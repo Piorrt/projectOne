@@ -45,37 +45,32 @@ public class Client {
             Scanner scanner = new Scanner(System.in);
             while (socket.isConnected()) {
                 String messageToSend = scanner.nextLine();
+                String[] messageParts = messageToSend.split(" ", 2);
+
                 if (isCorrectInput(messageToSend)) {
-                    writer.write(messageToSend);
-                    writer.newLine();
-                    writer.flush();
+
+                    switch (messageParts[0]) {
+                        case "/send":
+                            handleSendFileCommand(messageParts[1]);
+                            break;
+                        case "/download":
+                            handleDownloadFileCommand(messageParts[1]);
+                            break;
+                        case "/join":
+                            this.roomName = messageParts[1].substring(1);
+                            handleSendMessage(messageToSend);
+                            break;
+                        case "/exit":
+                            this.roomName = "#general".substring(1);
+                            handleSendMessage(messageToSend);
+                            break;
+                        case "/quit":
+                            handleQuitCommand();
+                            return;
+                        default:
+                            handleSendMessage(messageToSend);
+                    }
                 }
-                if (handleQuitCommand(messageToSend)){ return; }
-
-
-//                String messageToSend = scanner.nextLine();
-//                String[] messageParts = messageToSend.split(" ", 2);
-//                switch (messageParts[0]) {
-//                    case "/send":
-//                        handleSendFileCommand(messageParts[1]);
-//                        break;
-//                    case "/download":
-//                        handleDownloadFileCommand(messageParts[1]);
-//                        break;
-//                    case "/join":
-//                        this.roomName = messageParts[1].substring(1);
-//                        handleSendMessage(messageToSend);
-//                        break;
-//                    case "/exit":
-//                        this.roomName = "#general".substring(1);
-//                        handleSendMessage(messageToSend);
-//                        break;
-//                    case "/quit":
-//                        handleQuitCommand();
-//                        return;
-//                    default:
-//                        handleSendMessage(messageToSend);
-//                }
 
             }
         } catch (IOException e) {
@@ -89,7 +84,7 @@ public class Client {
             public void run() {
                 String msgFromGroupChat;
 
-                while(isConnected) {
+                while (isConnected) {
                     try {
                         msgFromGroupChat = reader.readLine();
                         System.out.println(msgFromGroupChat);
@@ -129,13 +124,13 @@ public class Client {
 
     public void closeAll(Socket socket, BufferedReader reader, BufferedWriter writer) {
         try {
-            if(reader != null) {
+            if (reader != null) {
                 reader.close();
             }
-            if(writer != null) {
+            if (writer != null) {
                 writer.close();
             }
-            if(socket != null) {
+            if (socket != null) {
                 socket.close();
             }
         } catch (IOException e) {
@@ -146,7 +141,7 @@ public class Client {
     public boolean isCorrectInput(String inputText) {
         if (inputText.startsWith("/")) {
             return isCorrectCommand(inputText);
-    }
+        }
         return true;
     }
 
@@ -160,6 +155,18 @@ public class Client {
                 return true;
             }
             case "/list": {
+                return true;
+            }
+            case "/send": {
+                return true;
+            }
+            case "/download": {
+                return true;
+            }
+            case "/files": {
+                return true;
+            }
+            case "/quit": {
                 return true;
             }
             default: {
