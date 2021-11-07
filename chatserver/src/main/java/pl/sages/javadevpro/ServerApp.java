@@ -1,5 +1,7 @@
 package pl.sages.javadevpro;
 
+import pl.sages.javadevpro.ftp.FTPServer;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 

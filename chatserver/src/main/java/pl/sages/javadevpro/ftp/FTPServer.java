@@ -1,9 +1,9 @@
-package pl.sages.javadevpro;
+package pl.sages.javadevpro.ftp;
 
 import java.io.*;
 import java.net.*;
 
-class FTPServer implements Runnable {
+public class FTPServer implements Runnable {
     ServerSocket serverSocket = null;
     Socket socket = null;
 

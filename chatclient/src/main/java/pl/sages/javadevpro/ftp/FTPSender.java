@@ -1,4 +1,4 @@
-package pl.sages.javadevpro;
+package pl.sages.javadevpro.ftp;
 
 import java.io.*;
 import java.net.Socket;
@@ -6,8 +6,8 @@ import java.net.Socket;
 
 public class FTPSender implements Runnable{
     public Socket client = null;
-    public DataOutputStream dos = null;
-    public FileInputStream fis = null;
+    public DataOutputStream dataOutputStream = null;
+    public FileInputStream fileInputStream = null;
     public String filename;
     public String dirname;
 
@@ -17,9 +17,9 @@ public class FTPSender implements Runnable{
             this.client = client;
             this.filename = filename;
             this.dirname = dirname;
-            dos = new DataOutputStream(client.getOutputStream());
+            dataOutputStream = new DataOutputStream(client.getOutputStream());
         } catch (IOException e) {
-            closeAll(client, dos);
+            closeAll(client, dataOutputStream);
         }
     }
 
@@ -33,15 +33,16 @@ public class FTPSender implements Runnable{
             file = new File(filename);
             if(file.isFile())
             {
-                fis = new FileInputStream(file);
-                data = new byte[fis.available()];
-                fis.read(data);
-                fis.close();
+                fileInputStream = new FileInputStream(file);
+                data = new byte[fileInputStream.available()];
+                fileInputStream.read(data);
+                fileInputStream.close();
                 filedata = new String(data);
-                dos.writeUTF("FILE_SEND_FROM_CLIENT");
-                dos.writeUTF(dirname);
-                dos.writeUTF(filename);
-                dos.writeUTF(filedata);
+                dataOutputStream.writeUTF("FILE_SEND_FROM_CLIENT");
+                dataOutputStream.writeUTF(dirname);
+                dataOutputStream.writeUTF(filename);
+                dataOutputStream.writeUTF(filedata);
+                dataOutputStream.close();
                 System.out.println("File Send Successful!");
             }
             else
@@ -51,8 +52,9 @@ public class FTPSender implements Runnable{
         }
         catch(Exception e)
         {
-
+            e.printStackTrace();
         }
+
     }
 
     public void closeAll(Socket socket, DataOutputStream dos) {
