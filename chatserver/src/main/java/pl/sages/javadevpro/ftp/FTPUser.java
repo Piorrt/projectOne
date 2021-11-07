@@ -1,68 +1,70 @@
-package pl.sages.javadevpro;
+package pl.sages.javadevpro.ftp;
 
 import java.io.*;
 import java.net.Socket;
 
 public class FTPUser implements Runnable {
     public Socket client = null;
-    public DataInputStream dis = null;
-    public DataOutputStream dos = null;
-    public FileInputStream fis = null;
-    public FileOutputStream fos = null;
-    public BufferedReader br = null;
+    public DataInputStream dataInputStream = null;
+    public DataOutputStream dataOutputStream = null;
+    public FileInputStream fileInputStream = null;
+    public FileOutputStream fileOutputStream = null;
     public File file = null;
 
     public FTPUser(Socket c) {
         try {
             client = c;
-            dis = new DataInputStream(c.getInputStream());
-            dos = new DataOutputStream(c.getOutputStream());
+            dataInputStream = new DataInputStream(c.getInputStream());
+            dataOutputStream = new DataOutputStream(c.getOutputStream());
 
         } catch (Exception e) {
-            closeAll(client, dis, dos);
+            closeAll(client, dataInputStream, dataOutputStream);
         }
     }
 
     @Override
     public void run() {
             try {
-                String input = dis.readUTF();
-                String filename = "", filedata = "", dirname = "";
+                String input = dataInputStream.readUTF();
+                String filename = "";
+                String filedata = "";
+                String dirname = "";
+
                 byte[] data;
                 if (input.equals("FILE_SEND_FROM_CLIENT")) {
-                    dirname = dis.readUTF();
-                    filename = dis.readUTF();
-                    filedata = dis.readUTF();
+                    dirname = dataInputStream.readUTF();
+                    filename = dataInputStream.readUTF();
+                    filedata = dataInputStream.readUTF();
                     File targetDir = new File("files", dirname);
                     if (!targetDir.exists())
                         targetDir.mkdirs();
                     File targetFile = new File(targetDir, filename);
-                    fos = new FileOutputStream(targetFile);
+                    fileOutputStream = new FileOutputStream(targetFile);
 
-                    fos.write(filedata.getBytes());
-                    fos.close();
+                    fileOutputStream.write(filedata.getBytes());
+                    fileOutputStream.close();
                 } else if (input.equals("DOWNLOAD_FILE")) {
-                    dirname = dis.readUTF();
-                    filename = dis.readUTF();
+                    dirname = dataInputStream.readUTF();
+                    filename = dataInputStream.readUTF();
 
                     File targetDir = new File("files", dirname);
                     file = new File(targetDir, filename);
 
                     if (file.isFile()) {
-                        fis = new FileInputStream(file);
-                        data = new byte[fis.available()];
-                        fis.read(data);
+                        fileInputStream = new FileInputStream(file);
+                        data = new byte[fileInputStream.available()];
+                        fileInputStream.read(data);
                         filedata = new String(data);
-                        fis.close();
-                        dos.writeUTF(filedata);
+                        fileInputStream.close();
+                        dataOutputStream.writeUTF(filedata);
                     } else {
-                        dos.writeUTF(""); // NO FILE FOUND
+                        dataOutputStream.writeUTF(""); // NO FILE FOUND
                     }
                 } else {
                     System.out.println("Error at Server");
                 }
             } catch (Exception e) {
-
+                e.printStackTrace();
             }
     }
 

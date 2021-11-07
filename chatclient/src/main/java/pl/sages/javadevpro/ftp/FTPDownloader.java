@@ -1,13 +1,13 @@
-package pl.sages.javadevpro;
+package pl.sages.javadevpro.ftp;
 
 import java.io.*;
 import java.net.Socket;
 
 public class FTPDownloader implements Runnable {
     public Socket client = null;
-    public DataInputStream dis = null;
-    public DataOutputStream dos = null;
-    public FileOutputStream fos = null;
+    public DataInputStream dataInputStream = null;
+    public DataOutputStream dataOutputStream = null;
+    public FileOutputStream fileOutputStream = null;
     public String filename;
     public String dirname;
 
@@ -16,10 +16,10 @@ public class FTPDownloader implements Runnable {
             this.client = client;
             this.filename = filename;
             this.dirname = dirname;
-            dis = new DataInputStream(client.getInputStream());
-            dos = new DataOutputStream(client.getOutputStream());
+            dataInputStream = new DataInputStream(client.getInputStream());
+            dataOutputStream = new DataOutputStream(client.getOutputStream());
         } catch (IOException e) {
-            closeAll(client, dis, dos);
+            closeAll(client, dataInputStream, dataOutputStream);
         }
     }
 
@@ -27,20 +27,21 @@ public class FTPDownloader implements Runnable {
     public void run() {
         try {
             String filedata = "";
-            dos.writeUTF("DOWNLOAD_FILE");
-            dos.writeUTF(dirname);
-            dos.writeUTF(filename);
-            filedata = dis.readUTF();
+            dataOutputStream.writeUTF("DOWNLOAD_FILE");
+            dataOutputStream.writeUTF(dirname);
+            dataOutputStream.writeUTF(filename);
+            filedata = dataInputStream.readUTF();
             if (filedata.equals("")) {
                 System.out.println("No Such File");
             } else {
-                fos = new FileOutputStream(filename);
-                fos.write(filedata.getBytes());
-                fos.close();
+                fileOutputStream = new FileOutputStream(filename);
+                fileOutputStream.write(filedata.getBytes());
+                fileOutputStream.close();
                 System.out.println("File Download Successful!");
             }
+            dataOutputStream.close();
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
     }
 

@@ -1,5 +1,8 @@
 package pl.sages.javadevpro;
 
+import pl.sages.javadevpro.ftp.FTPDownloader;
+import pl.sages.javadevpro.ftp.FTPSender;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
