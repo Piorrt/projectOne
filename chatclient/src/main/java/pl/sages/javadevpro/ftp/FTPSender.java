@@ -2,6 +2,8 @@ package pl.sages.javadevpro.ftp;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 
 public class FTPSender implements Runnable{
@@ -31,6 +33,10 @@ public class FTPSender implements Runnable{
             File file;
             byte[] data;
             file = new File(filename);
+
+            Path path = Paths.get(filename);
+            filename = path.getFileName().toString();
+
             if(file.isFile())
             {
                 fileInputStream = new FileInputStream(file);
