@@ -7,11 +7,12 @@ public class ChatRoom {
 
     private List<ChatUser> users = new ArrayList<>();
     private String chatRoomName;
-    private MessageHistoryManager messageHistoryManager = new MessageHistoryManager(this);
+    private MessageHistoryManager messageHistoryManager;
 
 
     public ChatRoom(String name) {
         this.chatRoomName = name;
+        this.messageHistoryManager = new MessageHistoryManager(name);
     }
 
     public void addChatUser(ChatUser chatUser) {

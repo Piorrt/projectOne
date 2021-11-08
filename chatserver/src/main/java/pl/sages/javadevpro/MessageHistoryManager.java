@@ -2,23 +2,24 @@ package pl.sages.javadevpro;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
 
 public class MessageHistoryManager {
 
     private ConcurrentLinkedQueue<String> chatRoomMessageHistory;
-    private ChatRoom room;
+    private String chatRoomName;
     private static final int MAX_ROOM_HISTORY_QUEUE_SIZE = 10;
-    private final String HISTORY_FILE = "chat_history";
+    private final String HISTORY_ARCHIVE_FILE = "chat_history.txt";
 
 
-    public MessageHistoryManager(ChatRoom room) {
-        this.room = room;
+    public MessageHistoryManager(String chatRoomName) {
+        this.chatRoomName = chatRoomName;
         this.chatRoomMessageHistory = getRecentChatRoomHistoryFromArchive();
     }
 
@@ -35,13 +36,13 @@ public class MessageHistoryManager {
     }
 
     private void saveMessageToArchive(String message,String fromUser) {
-        String composedMessage = room.getChatRoomName()
+        String composedMessage = chatRoomName
                 +";"+ LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:s"))
                 + ";" + fromUser
                 + ": " + message
                 + "\n";
         try {
-            Files.writeString(Path.of(HISTORY_FILE),
+            Files.writeString(Path.of(HISTORY_ARCHIVE_FILE),
                     composedMessage,
                     StandardOpenOption.APPEND,
                     StandardOpenOption.CREATE);
@@ -50,9 +51,24 @@ public class MessageHistoryManager {
         }
     }
 
-    private ConcurrentLinkedQueue<String> getRecentChatRoomHistoryFromArchive(){
-        //TODO retrieve last X messages posted in this room
-        return new ConcurrentLinkedQueue<>();
+    private ConcurrentLinkedQueue<String> getRecentChatRoomHistoryFromArchive() {
+        ConcurrentLinkedQueue<String> recentChatHistory = new ConcurrentLinkedQueue<>();
+        try {
+            if (!Files.exists(Path.of(HISTORY_ARCHIVE_FILE))){
+                Files.createFile(Path.of(HISTORY_ARCHIVE_FILE));
+            }
+
+            List<String> filteredHistory = Files.readAllLines(Path.of(HISTORY_ARCHIVE_FILE)).stream()
+                    .filter((line) -> chatRoomName.equals(line.split(";")[0])).collect(Collectors.toList());
+
+            filteredHistory.stream().skip(filteredHistory.size()>MAX_ROOM_HISTORY_QUEUE_SIZE ? filteredHistory.size()-MAX_ROOM_HISTORY_QUEUE_SIZE : 0)
+                    .map((line)->line.replace(";"," "))
+                    .forEach(recentChatHistory::add);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        return recentChatHistory;
     }
 
     public ConcurrentLinkedQueue<String> getChatRoomMessageHistory() {

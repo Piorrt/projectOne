@@ -1,0 +1,6 @@
+#general;2021-11-08 10:55:36;Anna: SERVER: Anna has connected to room: #general
+#general;2021-11-08 10:55:36;null: -- User: Anna connected to chat room --
+#general;2021-11-08 10:55:44;Anna: this is my first message
+#general;2021-11-08 10:55:51;Anna: this is my second message
+#general;2021-11-08 10:56:8;Anna: testing rite
+#general;2021-11-08 10:56:14;Anna: test write to file
