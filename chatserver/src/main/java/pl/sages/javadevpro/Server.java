@@ -16,6 +16,7 @@ public class Server {
     private ServerSocket serverSocket;
     private List<ChatUser> users = new ArrayList<>();
     private List<ChatRoom> rooms = new ArrayList<>();
+    Boolean userExist = false;
 
     public Server(ServerSocket serverSocket) {
         this.serverSocket = serverSocket;
@@ -30,11 +31,19 @@ public class Server {
                 System.out.println("New client has connected.");
 
                 ChatUser chatUser = new ChatUser(this, generalChatRoom, socket);
-                generalChatRoom.addChatUser(chatUser);
-                users.add(chatUser);
+                userExist = users.stream()
+                        .anyMatch(user -> user.getUserName().equals(chatUser.getUserName()));
+                if (!userExist) {
+                    generalChatRoom.addChatUser(chatUser);
+                    users.add(chatUser);
 
-                Thread thread = new Thread(chatUser);
-                thread.start();
+                    Thread thread = new Thread(chatUser);
+                    thread.start();
+                } else {
+                    System.out.println("This user exist!!!, create another name");
+                    chatUser.writeMessage("User name exist!", "SERVER");
+                    chatUser.closeUser();
+                }
             }
         } catch (IOException e) {
             closeServerSocket();
