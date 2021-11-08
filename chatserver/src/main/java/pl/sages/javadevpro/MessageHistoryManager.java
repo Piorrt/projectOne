@@ -1,5 +1,10 @@
 package pl.sages.javadevpro;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -7,9 +12,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class MessageHistoryManager {
 
     private ConcurrentLinkedQueue<String> chatRoomMessageHistory;
-    //TODO refactor message from String to custom object (fields: fromUser, publishedInRoom, timestamp, messageBody)
     private ChatRoom room;
     private static final int MAX_ROOM_HISTORY_QUEUE_SIZE = 10;
+    private final String HISTORY_FILE = "chat_history";
+
 
     public MessageHistoryManager(ChatRoom room) {
         this.room = room;
@@ -29,7 +35,19 @@ public class MessageHistoryManager {
     }
 
     private void saveMessageToArchive(String message,String fromUser) {
-        //TODO save message to file
+        String composedMessage = room.getChatRoomName()
+                +";"+ LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:s"))
+                + ";" + fromUser
+                + ": " + message
+                + "\n";
+        try {
+            Files.writeString(Path.of(HISTORY_FILE),
+                    composedMessage,
+                    StandardOpenOption.APPEND,
+                    StandardOpenOption.CREATE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private ConcurrentLinkedQueue<String> getRecentChatRoomHistoryFromArchive(){
@@ -40,4 +58,7 @@ public class MessageHistoryManager {
     public ConcurrentLinkedQueue<String> getChatRoomMessageHistory() {
         return chatRoomMessageHistory;
     }
+
 }
+
+
