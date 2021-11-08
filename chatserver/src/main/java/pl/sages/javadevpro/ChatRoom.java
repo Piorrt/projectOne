@@ -7,21 +7,22 @@ public class ChatRoom {
 
     private List<ChatUser> users = new ArrayList<>();
     private String chatRoomName;
-    private MessageHistoryManager messageHistoryManager = new MessageHistoryManager(this);
+    private MessageHistoryManager messageHistoryManager;
 
 
     public ChatRoom(String name) {
         this.chatRoomName = name;
+        this.messageHistoryManager = new MessageHistoryManager(name);
     }
 
     public void addChatUser(ChatUser chatUser) {
-        sendMessageToAllUsers("-- User: " + chatUser.getUserName() + " connected to chat room --", null);
+        sendMessageToAllUsers("-- User " + chatUser.getUserName() + " connected to chat room --", "Room info");
         users.add(chatUser);
-        messageHistoryManager.getChatRoomMessageHistory().forEach(message ->  chatUser.writeMessage(message,null));
+        messageHistoryManager.getLastXMessages(10).forEach(message ->  chatUser.writeMessage(message,""));
     }
 
     public void removeChatUser(ChatUser chatUser) {
-        sendMessageToAllUsers("-- User: " + chatUser.getUserName() + " left chat room --", null);
+        sendMessageToAllUsers("-- User " + chatUser.getUserName() + " left chat room --", "Room info");
         users.remove(chatUser);
     }
 
