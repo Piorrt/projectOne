@@ -25,7 +25,7 @@ public class FTPServer implements Runnable {
     public void run(){
 
         try{
-            while(true)
+            while(!serverSocket.isClosed())
             {
                 socket = serverSocket.accept();
                 FTPUser ftpUser = new FTPUser(socket);

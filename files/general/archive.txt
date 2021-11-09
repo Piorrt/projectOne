@@ -1,0 +1,4 @@
+#general;2021-11-10 20:16:39;Room info:-- User Ola connected to chat room --
+#general;2021-11-10 20:16:52;Room info:-- User Ala connected to chat room --
+#general;2021-11-10 20:22:38;Room info:-- User Ala connected to chat room --
+#general;2021-11-10 20:26:40;Room info:-- User Ola connected to chat room --
