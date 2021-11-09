@@ -29,7 +29,6 @@ public class FTPSender implements Runnable{
     public void run()
     {
         try{
-            String filedata="";
             File file;
             byte[] data;
             file = new File(filename);
@@ -43,11 +42,11 @@ public class FTPSender implements Runnable{
                 data = new byte[fileInputStream.available()];
                 fileInputStream.read(data);
                 fileInputStream.close();
-                filedata = new String(data);
+
                 dataOutputStream.writeUTF("FILE_SEND_FROM_CLIENT");
                 dataOutputStream.writeUTF(dirname);
                 dataOutputStream.writeUTF(filename);
-                dataOutputStream.writeUTF(filedata);
+                dataOutputStream.write(data);
                 dataOutputStream.close();
                 System.out.println("File Send Successful!");
             }

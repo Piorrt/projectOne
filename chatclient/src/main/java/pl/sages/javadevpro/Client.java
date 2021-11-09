@@ -20,9 +20,10 @@ public class Client {
     private String userName;
     private volatile boolean isConnected;
     private String roomName;
+    private int ftpPort;
 
 
-    public Client(Socket socket, String userName) {
+    public Client(Socket socket, String userName, int ftpPort) {
         try {
             this.socket = socket;
             this.writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -30,6 +31,7 @@ public class Client {
             this.isConnected = true;
             this.userName = userName;
             this.roomName = "general";
+            this.ftpPort = ftpPort;
 
         } catch (IOException e) {
             closeAll(socket, reader, writer);
@@ -47,7 +49,7 @@ public class Client {
                 String messageToSend = scanner.nextLine();
                 String[] messageParts = messageToSend.split(" ", 2);
 
-                if (isCorrectInput(messageToSend)) {
+//                if (isCorrectInput(messageToSend)) {
 
                     switch (messageParts[0]) {
                         case "/send":
@@ -57,20 +59,41 @@ public class Client {
                             handleDownloadFileCommand(messageParts[1]);
                             break;
                         case "/join":
-                            this.roomName = messageParts[1].substring(1);
-                            handleSendMessage(messageToSend);
+                            //checking the correctness of the command
+                            if (messageParts.length == 2
+                                    && messageParts[1].startsWith("#")
+                                    && !messageParts[1].contains(" ")) {
+                                this.roomName = messageParts[1].substring(1);
+                                handleSendMessage(messageToSend);
+                            } else {
+                                showInformationAboutIncorrectCommand();
+                            }
                             break;
                         case "/exit":
                             this.roomName = "#general".substring(1);
                             handleSendMessage(messageToSend);
                             break;
                         case "/quit":
+                            handleSendMessage(messageToSend);
                             handleQuitCommand();
                             return;
+                        case "/commands":
+                            showListOfAvailableCommands();
+                            break;
+                        case "/files":
+                            handleSendMessage(messageToSend);
+                            break;
+                        case "/list":
+                            handleSendMessage(messageToSend);
+                            break;
                         default:
+                            if (messageToSend.startsWith("/")) {
+                                showInformationAboutIncorrectCommand();
+                                break;
+                            }
                             handleSendMessage(messageToSend);
                     }
-                }
+//                }
 
             }
         } catch (IOException e) {
@@ -102,15 +125,30 @@ public class Client {
         writer.flush();
     }
 
+    public void showInformationAboutIncorrectCommand() {
+        System.out.println("It looks like you wanted to invoke a command");
+        System.out.println("to display a list of available commands, use the command: /commands");
+    }
+    public void showListOfAvailableCommands() {
+        System.out.println("List of available commands:");
+        System.out.println("\t/send <filename> - sends the <filename> file to the room on the server");
+        System.out.println("\t/download <filename> - downloads the <filename> file from the room on the server");
+        System.out.println("\t/files - displays the files available in the room on the server");
+        System.out.println("\t/join <#roomname> - takes the user from the general room to room <#roomname>");
+        System.out.println("\t/exit - takes the user to the general room");
+        System.out.println("\t/list - displays a list of users who are in the room");
+        System.out.println("\t/quit - closes application");
+    }
+
     public void handleSendFileCommand(String fileName) throws IOException {
-        Socket ftpSocket = new Socket("localhost", 8888);
+        Socket ftpSocket = new Socket("localhost", ftpPort);
         FTPSender ftpSender = new FTPSender(ftpSocket, fileName, roomName);
         Thread thread = new Thread(ftpSender);
         thread.start();
     }
 
     public void handleDownloadFileCommand(String fileName) throws IOException {
-        Socket ftpSocket = new Socket("localhost", 8888);
+        Socket ftpSocket = new Socket("localhost", ftpPort);
         FTPDownloader ftpDownloader = new FTPDownloader(ftpSocket, fileName, roomName);
         Thread thread = new Thread(ftpDownloader);
         thread.start();
@@ -170,7 +208,7 @@ public class Client {
             case "/quit": {
                 return true;
             }
-            case "/priv": {
+            case "/commands": {
                 return true;
             }
             default: {

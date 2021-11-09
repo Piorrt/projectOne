@@ -26,20 +26,21 @@ public class FTPDownloader implements Runnable {
     @Override
     public void run() {
         try {
-            String filedata = "";
+            byte[] data;
             dataOutputStream.writeUTF("DOWNLOAD_FILE");
             dataOutputStream.writeUTF(dirname);
             dataOutputStream.writeUTF(filename);
-            filedata = dataInputStream.readUTF();
-            if (filedata.equals("")) {
+            data = dataInputStream.readAllBytes();
+            if (data.length == 0) {
                 System.out.println("No Such File");
             } else {
                 fileOutputStream = new FileOutputStream(filename);
-                fileOutputStream.write(filedata.getBytes());
+                fileOutputStream.write(data);
                 fileOutputStream.close();
                 System.out.println("File Download Successful!");
             }
             dataOutputStream.close();
+            dataInputStream.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

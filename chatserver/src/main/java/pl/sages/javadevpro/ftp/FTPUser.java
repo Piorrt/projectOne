@@ -27,21 +27,20 @@ public class FTPUser implements Runnable {
             try {
                 String input = dataInputStream.readUTF();
                 String filename = "";
-                String filedata = "";
                 String dirname = "";
 
                 byte[] data;
                 if (input.equals("FILE_SEND_FROM_CLIENT")) {
                     dirname = dataInputStream.readUTF();
                     filename = dataInputStream.readUTF();
-                    filedata = dataInputStream.readUTF();
+                    data = dataInputStream.readAllBytes();
                     File targetDir = new File("files", dirname);
                     if (!targetDir.exists())
                         targetDir.mkdirs();
                     File targetFile = new File(targetDir, filename);
                     fileOutputStream = new FileOutputStream(targetFile);
 
-                    fileOutputStream.write(filedata.getBytes());
+                    fileOutputStream.write(data);
                     fileOutputStream.close();
                 } else if (input.equals("DOWNLOAD_FILE")) {
                     dirname = dataInputStream.readUTF();
@@ -54,15 +53,19 @@ public class FTPUser implements Runnable {
                         fileInputStream = new FileInputStream(file);
                         data = new byte[fileInputStream.available()];
                         fileInputStream.read(data);
-                        filedata = new String(data);
                         fileInputStream.close();
-                        dataOutputStream.writeUTF(filedata);
+                        dataOutputStream.write(data);
+                        dataOutputStream.close();
                     } else {
-                        dataOutputStream.writeUTF(""); // NO FILE FOUND
+                        // NO FILE FOUND
+                        data = new byte[0];
+                        dataOutputStream.write(data);
+                        dataOutputStream.close();
                     }
                 } else {
                     System.out.println("Error at Server");
                 }
+                dataInputStream.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class Server {
+public class Server implements Runnable {
 
     private ServerSocket serverSocket;
     private List<ChatUser> users = new ArrayList<>();
@@ -20,7 +20,9 @@ public class Server {
         this.serverSocket = serverSocket;
     }
 
-    public void start() {
+//    public void start() {
+    @Override
+    public void run() {
         ChatRoom generalChatRoom = new ChatRoom("#general");
         rooms.add(generalChatRoom);
         try {
@@ -117,17 +119,19 @@ public class Server {
     public void handleFilesCommand(ChatUser user) {
         String dirname = user.getRoom().getChatRoomName().substring(1);
         File targetDir = new File("files", dirname);
-        File[] files = targetDir.listFiles();
-        Boolean thereAreNoFilesInThisRoom = true;
+        File[] files = targetDir.listFiles(); //targetDir.listFiles() == null ? new File[0] : targetDir.listFiles();
+        boolean thereAreNoFilesInThisRoom = true;
 
-        for (File file : files) {
-            if (file.isFile()) {
-                user.writeMessage("-- File: " + file.getName() + " is available in the room --", "Room info");
-                thereAreNoFilesInThisRoom = false;
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile()) {
+                    user.writeMessage("-- File: " + file.getName() + " is available in the room --", "Room info");
+                    thereAreNoFilesInThisRoom = false;
+                }
             }
         }
 
-        if (thereAreNoFilesInThisRoom.equals(true)) {
+        if (thereAreNoFilesInThisRoom) {
             user.writeMessage("-- There are no files in this room --", "Room info");
         }
     }
