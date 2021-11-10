@@ -170,6 +170,9 @@ public class Client {
             case "/quit": {
                 return true;
             }
+            case "/priv": {
+                return true;
+            }
             default: {
                 System.out.println("Command not supported");
                 return false;

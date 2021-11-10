@@ -5,11 +5,10 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.stream.IntStream;
 
 public class Server {
 
@@ -58,6 +57,7 @@ public class Server {
             case "/exit": { handleExitCommand(user); break; }
             case "/quit": { handleQuitCommand(user); break; }
             case "/list": { handleListCommand(user); break; }
+            case "/priv": { handlePrivateCommand(user, commandParts[1], commandParts); break; }
             case "/files": { handleFilesCommand(user); break; }
 
             default:
@@ -129,6 +129,18 @@ public class Server {
 
         if (thereAreNoFilesInThisRoom.equals(true)) {
             user.writeMessage("-- There are no files in this room --", "Room info");
+        }
+    }
+
+    public void handlePrivateCommand(ChatUser user, String toUser, String[] msg) {
+        String message = IntStream
+            .range(0, msg.length)
+            .filter(i -> i > 1)
+            .mapToObj(i -> msg[i])
+            .collect(Collectors.joining(" "));
+
+        if (!user.getRoom().sendMessageToUser(user.getUserName(), toUser, message)) {
+            user.writeMessage("User: " + toUser + " is offline", "CHATROOM");
         }
     }
 }
