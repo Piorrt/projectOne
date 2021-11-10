@@ -18,7 +18,7 @@ public class MessageHistoryManager {
 
 
     public MessageHistoryManager(String chatRoomName) {
-        this.historyFilePath = "history/" + chatRoomName.substring(1) + "/archive.txt";
+        this.historyFilePath = "files/" + chatRoomName.substring(1) + "/archive.txt";
         this.chatRoomMessageHistory = getHistoryFromArchive();
         this.chatRoomName = chatRoomName;
     }
