@@ -116,19 +116,20 @@ public class Client {
         thread.start();
     }
 
-    public void handleQuitCommand() {
+    public void handleQuitCommand() throws IOException {
+        handleSendMessage("/quit");
         this.isConnected = false;
         closeAll(this.socket, this.reader, this.writer);
-        System.out.println("You has disconnected from server.");
+        System.out.println("You have disconnected from server.");
     }
 
     public void closeAll(Socket socket, BufferedReader reader, BufferedWriter writer) {
         try {
-            if (reader != null) {
-                reader.close();
-            }
             if (writer != null) {
                 writer.close();
+            }
+            if (reader != null) {
+                reader.close();
             }
             if (socket != null) {
                 socket.close();
