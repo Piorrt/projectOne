@@ -2,6 +2,8 @@ package pl.sages.javadevpro;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 public class ChatRoom {
 
@@ -43,5 +45,16 @@ public class ChatRoom {
         users.stream()
                 .forEach(chatUser -> usernames.add(chatUser.getUserName()));
         return usernames;
+    }
+
+    public boolean sendMessageToUser(String fromUser, String toUser, String msg) {
+        Optional<ChatUser> chatUser = users.stream()
+            .filter(user -> user.getUserName().equals(toUser))
+            .findFirst();
+        if (chatUser.isPresent()) {
+            chatUser.get().writeMessage("Private message from " + fromUser + "-> " + msg, fromUser);
+            return true;
+        }
+        return false;
     }
 }
