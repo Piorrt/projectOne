@@ -35,3 +35,9 @@ out/
 
 ## OS X
 .DS_Store
+
+## Project
+/files/
+*.txt
+*.png
+*.svg
