@@ -9,14 +9,14 @@ import java.net.Socket;
 
 public class ChatUser implements Runnable {
 
-    private Server server;
+    private ChatServer server;
     private ChatRoom room;
     private Socket socket;
     private BufferedReader reader;
     private BufferedWriter writer;
     private String userName;
 
-    public ChatUser(Server server, ChatRoom room, Socket socket) {
+    public ChatUser(ChatServer server, ChatRoom room, Socket socket) {
         try {
             this.server = server;
             this.room = room;

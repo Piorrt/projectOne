@@ -1,43 +1,23 @@
 package pl.sages.javadevpro;
 
 import pl.sages.javadevpro.ftp.FTPServer;
+import pl.sages.javadevpro.utils.Server;
 
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.Scanner;
+
+import static pl.sages.javadevpro.utils.Utils.createAndRunServer;
+import static pl.sages.javadevpro.utils.Utils.readPortFromPropertyOrReturnDefault;
 
 public class ServerApp {
 
     public static void main(String[] args) throws IOException {
 
-        int ftpPort = 8888;
-        int chatPort = 8080;
+        int ftpPort = readPortFromPropertyOrReturnDefault("ftpPort", 8888, 80, 9000);
+        int chatPort = readPortFromPropertyOrReturnDefault("chatPort", 8080, 80, 9000);
 
-        String systemFtpPort = System.getProperty("ftpPort");
-        if(systemFtpPort != null) {
-            int temp = Integer.parseInt(systemFtpPort);
-            if (temp >= 80 && temp <= 9000) {
-                ftpPort = temp;
-            }
-        }
-
-        String systemChatPort = System.getProperty("chatPort");
-        if(systemFtpPort != null) {
-            int temp = Integer.parseInt(systemChatPort);
-            if (temp >= 80 && temp <= 9000) {
-                chatPort = temp;
-            }
-        }
-
-        ServerSocket ftpServerSocket = new ServerSocket(ftpPort);
-        FTPServer ftpServer = new FTPServer(ftpServerSocket);
-        Thread thread = new Thread(ftpServer);
-        thread.start();
-
-        ServerSocket serverSocket = new ServerSocket(chatPort);
-        Server server = new Server(serverSocket);
-        Thread thread1 = new Thread(server);
-        thread1.start();
+        Server ftpServer = createAndRunServer(FTPServer.class, ftpPort);
+        Server chatServer = createAndRunServer(ChatServer.class, chatPort);
 
         System.out.println("Chat Server is running on port " + chatPort);
         System.out.println("FTP Server is running on port  " + ftpPort);
@@ -49,7 +29,7 @@ public class ServerApp {
 
                 switch (command) {
                     case "/quit":
-                        server.closeServerSocket();
+                        chatServer.closeServerSocket();
                         ftpServer.closeServerSocket();
                         serverIsRunning = false;
                         break;

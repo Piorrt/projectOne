@@ -4,28 +4,14 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.Scanner;
 
+import static pl.sages.javadevpro.utils.Utils.readPortFromPropertyOrReturnDefault;
+
 public class ClientApp {
 
     public static void main(String[] args) throws IOException {
 
-        int ftpPort = 8888;
-        int chatPort = 8080;
-
-        String systemFtpPort = System.getProperty("ftpPort");
-        if(systemFtpPort != null) {
-            int temp = Integer.parseInt(systemFtpPort);
-            if (temp >= 80 && temp <= 9000) {
-                ftpPort = temp;
-            }
-        }
-
-        String systemChatPort = System.getProperty("chatPort");
-        if(systemFtpPort != null) {
-            int temp = Integer.parseInt(systemChatPort);
-            if (temp >= 80 && temp <= 9000) {
-                chatPort = temp;
-            }
-        }
+        int ftpPort = readPortFromPropertyOrReturnDefault("ftpPort", 8888, 80, 9000);
+        int chatPort = readPortFromPropertyOrReturnDefault("chatPort", 8080, 80, 9000);
 
         System.out.println("Chat Client is running on port " + chatPort);
         System.out.println("FTP Client is running on port  " + ftpPort);

@@ -1,22 +1,23 @@
 package pl.sages.javadevpro;
 
+import pl.sages.javadevpro.utils.Server;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class Server implements Runnable {
+public class ChatServer implements Server {
 
     private ServerSocket serverSocket;
     private List<ChatUser> users = new ArrayList<>();
     private List<ChatRoom> rooms = new ArrayList<>();
 
-    public Server(ServerSocket serverSocket) {
+    public ChatServer(ServerSocket serverSocket) {
         this.serverSocket = serverSocket;
     }
 
@@ -42,6 +43,7 @@ public class Server implements Runnable {
         }
     }
 
+    @Override
     public void closeServerSocket() {
         try {
             if (serverSocket != null) {

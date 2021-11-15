@@ -1,9 +1,11 @@
 package pl.sages.javadevpro.ftp;
 
+import pl.sages.javadevpro.utils.Server;
+
 import java.io.*;
 import java.net.*;
 
-public class FTPServer implements Runnable {
+public class FTPServer implements Server {
     ServerSocket serverSocket = null;
     Socket socket = null;
 
@@ -11,6 +13,7 @@ public class FTPServer implements Runnable {
         this.serverSocket = serverSocket;
     }
 
+    @Override
     public void closeServerSocket() {
         try {
             if (serverSocket != null) {
