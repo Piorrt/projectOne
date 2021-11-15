@@ -30,17 +30,28 @@ public class FTPDownloader implements Runnable {
             dataOutputStream.writeUTF("DOWNLOAD_FILE");
             dataOutputStream.writeUTF(dirname);
             dataOutputStream.writeUTF(filename);
-            data = dataInputStream.readAllBytes();
-            if (data.length == 0) {
-                System.out.println("No Such File");
+
+            String fileAvailableOnServer = dataInputStream.readUTF();
+
+            if (fileAvailableOnServer.equals("FILE_AVAILABLE_ON_SERVER")) {
+                data = dataInputStream.readAllBytes();
+                if (data.length == 0) {
+                    System.out.println("No Such File");
+                } else {
+                    fileOutputStream = new FileOutputStream(filename);
+                    fileOutputStream.write(data);
+                    fileOutputStream.close();
+                    System.out.println("File Download Successful!");
+                }
+                dataOutputStream.close();
+                dataInputStream.close();
             } else {
-                fileOutputStream = new FileOutputStream(filename);
-                fileOutputStream.write(data);
-                fileOutputStream.close();
-                System.out.println("File Download Successful!");
+                dataOutputStream.close();
+                dataInputStream.close();
+                System.out.println("Server error!");
             }
-            dataOutputStream.close();
-            dataInputStream.close();
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }

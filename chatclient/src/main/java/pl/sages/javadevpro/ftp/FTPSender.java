@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 public class FTPSender implements Runnable{
     public Socket client = null;
     public DataOutputStream dataOutputStream = null;
+    public DataInputStream dataInputStream = null;
     public FileInputStream fileInputStream = null;
     public String filename;
     public String dirname;
@@ -20,6 +21,7 @@ public class FTPSender implements Runnable{
             this.filename = filename;
             this.dirname = dirname;
             dataOutputStream = new DataOutputStream(client.getOutputStream());
+            dataInputStream = new DataInputStream(client.getInputStream());
         } catch (IOException e) {
             closeAll(client, dataOutputStream);
         }
@@ -46,9 +48,20 @@ public class FTPSender implements Runnable{
                 dataOutputStream.writeUTF("FILE_SEND_FROM_CLIENT");
                 dataOutputStream.writeUTF(dirname);
                 dataOutputStream.writeUTF(filename);
-                dataOutputStream.write(data);
-                dataOutputStream.close();
-                System.out.println("File Send Successful!");
+
+                String fileAvailableOnServer = dataInputStream.readUTF();
+
+                if (fileAvailableOnServer.equals("FILE_AVAILABLE_ON_SERVER")) {
+                    dataOutputStream.write(data);
+                    dataOutputStream.close();
+                    dataInputStream.close();
+                    System.out.println("File Send Successful!");
+                } else {
+                    dataOutputStream.close();
+                    dataInputStream.close();
+                    System.out.println("Server error!");
+                }
+
             }
             else
             {

@@ -1,5 +1,7 @@
 package pl.sages.javadevpro;
 
+import pl.sages.javadevpro.filelocker.FileReaderLocker;
+import pl.sages.javadevpro.filelocker.FileWriterLocker;
 import pl.sages.javadevpro.ftp.FTPServer;
 
 import java.io.IOException;
@@ -46,8 +48,19 @@ public class ServerApp {
             Scanner scanner = new Scanner(System.in);
 
                 String command = scanner.nextLine();
+                String[] commandParts = command.split(" ", 2);
 
-                switch (command) {
+                switch (commandParts[0]) {
+                    case "/readerLock":
+                        FileReaderLocker fileReaderLocker = new FileReaderLocker(commandParts[1]);
+                        Thread thread2 = new Thread(fileReaderLocker);
+                        thread2.start();
+                        break;
+                    case "/writerLock":
+                        FileWriterLocker fileWriterLocker = new FileWriterLocker(commandParts[1]);
+                        Thread thread3 = new Thread(fileWriterLocker);
+                        thread3.start();
+                        break;
                     case "/quit":
                         server.closeServerSocket();
                         ftpServer.closeServerSocket();
@@ -71,5 +84,7 @@ public class ServerApp {
     private static void showListOfAvailableCommands() {
         System.out.println("List of available commands:");
         System.out.println("\t/quit - closes application");
+        System.out.println("\t/readerLock <filename> - test only!!!");
+        System.out.println("\t/writerLock <filename> - test only!!!");
     }
 }
