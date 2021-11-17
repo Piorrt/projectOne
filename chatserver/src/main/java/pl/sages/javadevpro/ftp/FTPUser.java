@@ -42,19 +42,17 @@ public class FTPUser implements Runnable {
                     if (!targetDir.exists())
                         targetDir.mkdirs();
                     File targetFile = new File(targetDir, filename);
-//                    fileOutputStream = new FileOutputStream(targetFile);
                     fileOutputStream = new FileOutputStream(targetFile, true);
                     FileChannel channel = fileOutputStream.getChannel();
                     FileLock lock = channel.lock();
 
-                    fileOutputStream = new FileOutputStream(targetFile);    //???
+                    fileOutputStream = new FileOutputStream(targetFile);    //??? due to the append mode above
 
 
                     dataOutputStream.writeUTF("FILE_AVAILABLE_ON_SERVER");
 
                     data = dataInputStream.readAllBytes();
 
-//                    fileOutputStream.write(data);
                     channel.write(ByteBuffer.wrap(data));
 
                     fileOutputStream.close();
@@ -70,16 +68,12 @@ public class FTPUser implements Runnable {
 
                         FileChannel channel = fileInputStream.getChannel();
                         FileLock lock = channel.lock(0, Long.MAX_VALUE, true);
-//                        FileLock lock = channel.lock();
 
                         dataOutputStream.writeUTF("FILE_AVAILABLE_ON_SERVER");
 
-//                        data = new byte[fileInputStream.available()];
                         int size = (int)channel.size();
                         data = new byte[size];
-//                        fileInputStream.read(data);
                         channel.read(ByteBuffer.wrap(data));
-//                        while(true);
                         fileInputStream.close();
                         dataOutputStream.write(data);
                         dataOutputStream.close();
