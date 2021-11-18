@@ -1,75 +1,55 @@
 package pl.sages.javadevpro;
 
+import pl.sages.javadevpro.chat.ChatServer;
 import pl.sages.javadevpro.ftp.FTPServer;
+import pl.sages.javadevpro.utils.Server;
+import pl.sages.javadevpro.view.InternalServerInfoPrinter;
 
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import static pl.sages.javadevpro.utils.Utils.createServer;
+import static pl.sages.javadevpro.utils.Utils.readPortFromPropertyOrReturnDefault;
 
 public class ServerApp {
 
     public static void main(String[] args) throws IOException {
 
-        int ftpPort = 8888;
-        int chatPort = 8080;
+        int ftpPort = readPortFromPropertyOrReturnDefault("ftpPort", 8888);
+        int chatPort = readPortFromPropertyOrReturnDefault("chatPort", 8080);
 
-        String systemFtpPort = System.getProperty("ftpPort");
-        if(systemFtpPort != null) {
-            int temp = Integer.parseInt(systemFtpPort);
-            if (temp >= 80 && temp <= 9000) {
-                ftpPort = temp;
-            }
-        }
+        Server ftpServer = createServer(FTPServer.class, ftpPort);
+        Server chatServer = createServer(ChatServer.class, chatPort);
 
-        String systemChatPort = System.getProperty("chatPort");
-        if(systemFtpPort != null) {
-            int temp = Integer.parseInt(systemChatPort);
-            if (temp >= 80 && temp <= 9000) {
-                chatPort = temp;
-            }
-        }
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
+        executorService.execute(ftpServer);
+        executorService.execute(chatServer);
 
-        ServerSocket ftpServerSocket = new ServerSocket(ftpPort);
-        FTPServer ftpServer = new FTPServer(ftpServerSocket);
-        Thread thread = new Thread(ftpServer);
-        thread.start();
+        InternalServerInfoPrinter.printServerRunningInfo("FTP Server", ftpPort);
+        InternalServerInfoPrinter.printServerRunningInfo("Chat Server", chatPort);
 
-        ServerSocket serverSocket = new ServerSocket(chatPort);
-        Server server = new Server(serverSocket);
-        Thread thread1 = new Thread(server);
-        thread1.start();
 
-        System.out.println("Chat Server is running on port " + chatPort);
-        System.out.println("FTP Server is running on port  " + ftpPort);
         boolean serverIsRunning = true;
         while (serverIsRunning) {
             Scanner scanner = new Scanner(System.in);
-
-                String command = scanner.nextLine();
-
-                switch (command) {
-                    case "/quit":
-                        server.closeServerSocket();
-                        ftpServer.closeServerSocket();
-                        serverIsRunning = false;
-                        break;
-                    case "/commands":
-                        showListOfAvailableCommands();
-                        break;
-                    default:
-                        showInformationAboutIncorrectCommand();
-                }
+            String command = scanner.nextLine();
+            switch (command) {
+                case "/quit":
+                    chatServer.closeServerSocket();
+                    ftpServer.closeServerSocket();
+                    serverIsRunning = false;
+                    break;
+                case "/commands":
+                    InternalServerInfoPrinter.printListOfAvailableCommands();
+                    break;
+                default:
+                    InternalServerInfoPrinter.printInformationAboutIncorrectCommand();
+            }
         }
-        System.out.println("Server has been closed.");
+        InternalServerInfoPrinter.printServerClosingInfo();
     }
 
-    private static void showInformationAboutIncorrectCommand() {
-        System.out.println("It looks like you wanted to invoke a command");
-        System.out.println("to display a list of available commands, use the command: /commands");
-    }
 
-    private static void showListOfAvailableCommands() {
-        System.out.println("List of available commands:");
-        System.out.println("\t/quit - closes application");
-    }
 }
