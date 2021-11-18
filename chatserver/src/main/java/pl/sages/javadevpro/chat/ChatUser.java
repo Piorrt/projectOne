@@ -1,5 +1,7 @@
 package pl.sages.javadevpro.chat;
 
+import pl.sages.javadevpro.view.ChatMessageProducer;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -15,6 +17,7 @@ public class ChatUser {
     private String userName;
     private UserCommandsHandler commandsController;
     private ChatRoom room;
+    private final ChatMessageProducer chatMessageProducer = new ChatMessageProducer();
 
     public ChatUser(Socket socket) {
         try {
@@ -55,7 +58,8 @@ public class ChatUser {
         if (inputFromClient.startsWith("/")) {
             commandsController.dispatchCommand(inputFromClient);
         } else {
-            room.sendMessageToAllUsers(inputFromClient, this);
+            String messageToUsers = chatMessageProducer.userMessage(inputFromClient,this);
+            room.sendMessageToAllUsers(messageToUsers, this);
         }
     }
 

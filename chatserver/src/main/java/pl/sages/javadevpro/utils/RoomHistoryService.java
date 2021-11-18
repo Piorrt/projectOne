@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter;
 public class RoomHistoryService {
 
     public static void saveMessageToArchive(String chatRoomName, String message) {
-        String historyFilePath = getFilePath(chatRoomName);
+        Path historyFilePath = getHistoryFilePath(getFilePath(chatRoomName));
         StringBuilder composeMessage = new StringBuilder();
         composeMessage
                 .append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:s")))
@@ -18,7 +18,7 @@ public class RoomHistoryService {
                 .append(message)
                 .append("\n");
         try {
-            Files.writeString(Path.of(historyFilePath),
+            Files.writeString(historyFilePath,
                     composeMessage.toString(),
                     StandardOpenOption.APPEND);
         } catch (IOException e) {
@@ -28,6 +28,19 @@ public class RoomHistoryService {
 
     private static String getFilePath(String chatRoomName) {
         return "files/" + chatRoomName.substring(1) + "/archive.txt";
+    }
+
+    private static Path getHistoryFilePath(String historyFilePath){
+        Path filePath = Path.of(historyFilePath);
+        if (Files.notExists(filePath)) {
+            try {
+                Files.createDirectories(filePath.getParent());
+                Files.createFile(filePath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return filePath;
     }
 
 }

@@ -6,6 +6,7 @@ import pl.sages.javadevpro.view.InternalServerInfoPrinter;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -26,7 +27,12 @@ public class ChatServer implements Server {
         ExecutorService executorService = Executors.newFixedThreadPool(MAX_CHAT_USERS);
 
         while (!serverSocket.isClosed()) {
-            executorService.execute(createNewUser(generalRoom));
+            try {
+                Socket socket = serverSocket.accept();
+                executorService.execute(createNewUser(socket,generalRoom));
+            } catch (IOException e) {
+                closeServerSocket();
+            }
         }
     }
 
@@ -41,18 +47,12 @@ public class ChatServer implements Server {
         }
     }
 
-    private Runnable createNewUser(ChatRoom initialChatRoom) {
+    private Runnable createNewUser(Socket clientSocket, ChatRoom initialChatRoom) {
         return () -> {
-            try {
-                Socket socket = serverSocket.accept();
-                InternalServerInfoPrinter.printNewClientConnectedInfo();
-                ChatUser chatUser = new ChatUser(socket);
-                initialChatRoom.addChatUser(chatUser);
-                chatUser.listenToClient();
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
+            InternalServerInfoPrinter.printNewClientConnectedInfo();
+            ChatUser chatUser = new ChatUser(clientSocket);
+            initialChatRoom.addChatUser(chatUser);
+            chatUser.listenToClient();
         };
     }
 
