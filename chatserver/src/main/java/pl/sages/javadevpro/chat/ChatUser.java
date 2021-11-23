@@ -15,8 +15,8 @@ public class ChatUser {
     private BufferedReader reader;
     private BufferedWriter writer;
     private String userName;
-    private UserCommandsHandler commandsController;
     private ChatRoom room;
+    private UserCommandsHandler commandsController;
     private final ChatMessageProducer chatMessageProducer = new ChatMessageProducer();
 
     public ChatUser(Socket socket) {

@@ -19,17 +19,12 @@ public class ServerApp {
 
         int ftpPort = readPortFromPropertyOrReturnDefault("ftpPort", 8888);
         int chatPort = readPortFromPropertyOrReturnDefault("chatPort", 8080);
-
         Server ftpServer = createServer(FTPServer.class, ftpPort);
         Server chatServer = createServer(ChatServer.class, chatPort);
 
         ExecutorService executorService = Executors.newFixedThreadPool(2);
         executorService.execute(ftpServer);
         executorService.execute(chatServer);
-
-        InternalServerInfoPrinter.printServerRunningInfo("FTP Server", ftpPort);
-        InternalServerInfoPrinter.printServerRunningInfo("Chat Server", chatPort);
-
 
         boolean serverIsRunning = true;
         while (serverIsRunning) {

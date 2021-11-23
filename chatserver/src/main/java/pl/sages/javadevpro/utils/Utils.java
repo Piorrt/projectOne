@@ -1,5 +1,7 @@
 package pl.sages.javadevpro.utils;
 
+import pl.sages.javadevpro.view.InternalServerInfoPrinter;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 
@@ -21,7 +23,9 @@ public class Utils {
 
     public static Server createServer(Class<? extends Server> serverClass, int port) throws IOException {
         ServerSocket socket = new ServerSocket(port);
-        return new ServerFactory().create(serverClass, socket);
+        Server server = new ServerFactory().create(serverClass, socket);
+        InternalServerInfoPrinter.printServerRunningInfo(serverClass.getSimpleName(), port);
+        return server;
     }
 
 }
