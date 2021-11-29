@@ -1,10 +1,13 @@
 package pl.sages.javadevpro;
 
+import jakarta.inject.Singleton;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+@Singleton
 class ServerWorkers {
 
     private final Set<Worker> workers = new HashSet<>();

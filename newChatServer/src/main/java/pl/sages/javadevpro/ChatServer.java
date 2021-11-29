@@ -1,5 +1,9 @@
 package pl.sages.javadevpro;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
 import lombok.RequiredArgsConstructor;
 import pl.sages.javadevpro.commons.Sockets;
 
@@ -13,24 +17,34 @@ import static java.util.concurrent.Executors.newFixedThreadPool;
 import static pl.sages.javadevpro.ServerEventType.CONNECTION_ACCEPTED;
 import static pl.sages.javadevpro.ServerEventType.STARTED;
 
-@RequiredArgsConstructor
+@ApplicationScoped
+@RequiredArgsConstructor(onConstructor_ = @Inject)
 public class ChatServer {
 
     private static final String CHAT_PORT_PARAMETER_NAME = "chatServerPort";
     private static final int DEFAULT_CHAT_PORT = 8888;
     private static final int THREADS_COUNT = 1024;
 
-    private final ServerWorkers serverWorkers = new ServerWorkers();
+    private final ServerWorkers serverWorkers;
     private final EventsBus eventsBus;
-    private final ExecutorService executorService;
+    @Inject
+    private Event<ServerEvent> serverEvent;
 
-    private void start(int port) throws IOException {
-        eventsBus.addConsumer(new ServerEventsProcessor(serverWorkers));
+    private ExecutorService executorService;
+    private int port;
+
+    @PostConstruct
+    private void beforeStart(){
+        executorService = newFixedThreadPool(THREADS_COUNT);
+        port = Sockets.parsePort(getProperty(CHAT_PORT_PARAMETER_NAME), DEFAULT_CHAT_PORT);
+    }
+
+    public void start() throws IOException {
         var serverSocket = new ServerSocket(port);
-        eventsBus.publish(new ServerEvent(STARTED));
+        serverEvent.fire(new ServerEvent(STARTED));
         while (true) {
             var socket = serverSocket.accept();
-            eventsBus.publish(new ServerEvent(CONNECTION_ACCEPTED));
+            serverEvent.fire(new ServerEvent(CONNECTION_ACCEPTED));
             createWorker(socket);
         }
     }
@@ -39,14 +53,6 @@ public class ChatServer {
         var worker = new Worker(socket, eventsBus);
         serverWorkers.add(worker);
         executorService.execute(worker);
-    }
-
-    public static void main(String[] args) throws IOException {
-        var port = Sockets.parsePort(getProperty(CHAT_PORT_PARAMETER_NAME), DEFAULT_CHAT_PORT);
-        var eventsBus = new EventsBus();
-        eventsBus.addConsumer(new ServerEventsLogger());
-        var server = new ChatServer(eventsBus, newFixedThreadPool(THREADS_COUNT));
-        server.start(port);
     }
 
 }

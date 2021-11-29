@@ -1,5 +1,6 @@
 package pl.sages.javadevpro.commons;
 
+import jakarta.enterprise.context.RequestScoped;
 import lombok.extern.java.Log;
 
 import java.io.IOException;
