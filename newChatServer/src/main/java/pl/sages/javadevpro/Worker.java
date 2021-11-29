@@ -1,5 +1,6 @@
 package pl.sages.javadevpro;
 
+import jakarta.enterprise.event.Event;
 import pl.sages.javadevpro.commons.TextReader;
 import pl.sages.javadevpro.commons.TextWriter;
 
@@ -11,12 +12,12 @@ import static pl.sages.javadevpro.ServerEventType.MESSAGE_RECEIVED;
 class Worker implements Runnable {
 
     private final Socket socket;
-    private final EventsBus eventsBus;
+    private final Event<ServerEvent> eventsHandler;
     private final TextWriter writer;
 
-    Worker(Socket socket, EventsBus eventsBus) {
+    Worker(Socket socket, Event<ServerEvent> eventsHandler) {
         this.socket = socket;
-        this.eventsBus = eventsBus;
+        this.eventsHandler = eventsHandler;
         writer = new TextWriter(socket);
     }
 
@@ -26,11 +27,11 @@ class Worker implements Runnable {
     }
 
     private void onText(String text) {
-        eventsBus.publish(new ServerEvent(MESSAGE_RECEIVED, text, this));
+        eventsHandler.fire(new ServerEvent(MESSAGE_RECEIVED, text, this));
     }
 
     private void onInputClose() {
-        eventsBus.publish(new ServerEvent(CONNECTION_CLOSED, this));
+        eventsHandler.fire(new ServerEvent(CONNECTION_CLOSED, this));
     }
 
     void send(String text) {
