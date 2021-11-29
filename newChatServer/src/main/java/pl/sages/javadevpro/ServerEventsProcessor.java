@@ -5,15 +5,13 @@ import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import lombok.RequiredArgsConstructor;
 
-import java.util.function.Consumer;
 
 @ApplicationScoped
 @RequiredArgsConstructor(onConstructor_ = @Inject)
-public class ServerEventsProcessor implements Consumer<ServerEvent> {
+public class ServerEventsProcessor {
 
     private final ServerWorkers serverWorkers;
 
-    @Override
     public void accept(@Observes ServerEvent event) {
         switch (event.getType()) {
             case MESSAGE_RECEIVED:

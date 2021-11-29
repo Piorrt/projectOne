@@ -4,13 +4,10 @@ import jakarta.enterprise.event.Observes;
 import jakarta.inject.Singleton;
 import lombok.extern.java.Log;
 
-import java.util.function.Consumer;
-
 @Singleton
 @Log
-class ServerEventsLogger implements Consumer<ServerEvent> {
+class ServerEventsLogger {
 
-    @Override
     public void accept(@Observes ServerEvent event) {
         switch (event.getType()) {
             case STARTED:

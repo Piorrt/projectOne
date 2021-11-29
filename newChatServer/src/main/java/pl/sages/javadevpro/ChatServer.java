@@ -26,9 +26,8 @@ public class ChatServer {
     private static final int THREADS_COUNT = 1024;
 
     private final ServerWorkers serverWorkers;
-    private final EventsBus eventsBus;
     @Inject
-    private Event<ServerEvent> serverEvent;
+    private Event<ServerEvent> eventsHandler;
 
     private ExecutorService executorService;
     private int port;
@@ -41,16 +40,16 @@ public class ChatServer {
 
     public void start() throws IOException {
         var serverSocket = new ServerSocket(port);
-        serverEvent.fire(new ServerEvent(STARTED));
+        eventsHandler.fire(new ServerEvent(STARTED));
         while (true) {
             var socket = serverSocket.accept();
-            serverEvent.fire(new ServerEvent(CONNECTION_ACCEPTED));
+            eventsHandler.fire(new ServerEvent(CONNECTION_ACCEPTED));
             createWorker(socket);
         }
     }
 
     private void createWorker(Socket socket) {
-        var worker = new Worker(socket, eventsBus);
+        var worker = new Worker(socket, eventsHandler);
         serverWorkers.add(worker);
         executorService.execute(worker);
     }
