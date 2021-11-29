@@ -1,5 +1,8 @@
 package pl.sages.javadevpro.commons;
 
+import jakarta.enterprise.context.RequestScoped;
+
+@RequestScoped
 public class Sockets {
 
     private static final int MIN_PORT_NUMBER = 80;

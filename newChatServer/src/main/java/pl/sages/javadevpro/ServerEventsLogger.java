@@ -1,14 +1,17 @@
 package pl.sages.javadevpro;
 
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Singleton;
 import lombok.extern.java.Log;
 
 import java.util.function.Consumer;
 
+@Singleton
 @Log
 class ServerEventsLogger implements Consumer<ServerEvent> {
 
     @Override
-    public void accept(ServerEvent event) {
+    public void accept(@Observes ServerEvent event) {
         switch (event.getType()) {
             case STARTED:
                 log.info("Server started.");
