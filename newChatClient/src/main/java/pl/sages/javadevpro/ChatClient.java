@@ -6,6 +6,8 @@ import pl.sages.javadevpro.commons.TextWriter;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -15,11 +17,12 @@ public class ChatClient {
     private final Consumer<String> onMessage;
     private final Runnable readFromSocket;
     private final Runnable readFromConsole;
+    private static String[] names = {"Ola", "Ala", "Ula", "Ela", "Jan"};
 
     public ChatClient(String host, int port, String name) throws IOException {
         var socket = new Socket(host, port);
         onMessage = text -> new TextWriter(socket).write(name + ": " + text);
-        readFromSocket = () -> new TextReader(socket, log::info, () -> log.info("Connection closed")).read();
+        readFromSocket = () -> new TextReader(socket, System.out::println, () -> System.out.println("Connection closed")).read();
         readFromConsole = () -> new TextReader(System.in, onMessage).read();
     }
 
@@ -31,7 +34,8 @@ public class ChatClient {
     }
 
     public static void main(String[] args) throws IOException {
-        new ChatClient("localhost", 8888, UUID.randomUUID().toString()).start();
+        Integer randomInt = new Random().nextInt(names.length);
+        new ChatClient("localhost", 8888, names[randomInt]).start();
     }
 
 }

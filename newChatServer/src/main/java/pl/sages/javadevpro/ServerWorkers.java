@@ -1,10 +1,7 @@
 package pl.sages.javadevpro;
 
 import jakarta.inject.Singleton;
-
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -12,36 +9,26 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @Singleton
 class ServerWorkers {
 
-    private final Map<String,ChatRoom> rooms = new HashMap<>();
+    private Set<Worker> workers = new HashSet<>();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
-    void addUserToRoom(String roomName, Worker worker) {
+    void add(Worker worker) {
         lock.writeLock().lock();
-        ChatRoom chatRoom = rooms.get(roomName);
-        if (chatRoom==null) {
-            chatRoom = new ChatRoom(roomName);
-            chatRoom.add(worker);
-            rooms.put(roomName,chatRoom);
-        }
-        else {
-            chatRoom.add(worker);
-        }
+        workers.add(worker);
         lock.writeLock().unlock();
     }
 
-    void remove(String roomName, Worker worker) {
+    void remove(Worker worker) {
         lock.writeLock().lock();
-        ChatRoom chatRoom = rooms.get(roomName);
-        if (chatRoom!=null) {
-            chatRoom.remove(worker);
-        }
+        workers.remove(worker);
         lock.writeLock().unlock();
     }
 
-    void broadcast(String text) {
+    void broadcast(String text, String chatRoom) {
         lock.readLock().lock();
-        //TODO
-//        workers.forEach(worker -> worker.send(text));
+        workers.stream()
+            .filter(worker -> worker.getRoomName().equals(chatRoom))
+            .forEach(worker -> worker.send(text));
         lock.readLock().unlock();
     }
 

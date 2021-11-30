@@ -15,7 +15,7 @@ public class ServerEventsProcessor {
     public void accept(@Observes ServerEvent event) {
         switch (event.getType()) {
             case MESSAGE_RECEIVED:
-                serverWorkers.broadcast(event.getPayload());
+                serverWorkers.broadcast(event.getPayload(), event.getSource().getRoomName());
                 break;
             case CONNECTION_CLOSED:
                 serverWorkers.remove(event.getSource());

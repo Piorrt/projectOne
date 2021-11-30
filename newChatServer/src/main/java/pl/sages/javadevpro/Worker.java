@@ -17,19 +17,25 @@ class Worker implements Runnable {
 
     private String roomName;
 
-    public void setRoomName(String roomName) {
-        this.roomName = roomName;
-    }
 
-    Worker(Socket socket, Event<ServerEvent> eventsHandler) {
+    Worker(Socket socket, Event<ServerEvent> eventsHandler, String roomName) {
         this.socket = socket;
         this.eventsHandler = eventsHandler;
+        this.roomName = roomName;
         writer = new TextWriter(socket);
     }
 
     @Override
     public void run() {
         new TextReader(socket, this::onText, this::onInputClose).read();
+    }
+
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
+    }
+
+    public String getRoomName() {
+        return roomName;
     }
 
     private void onText(String text) {
