@@ -15,6 +15,12 @@ class Worker implements Runnable {
     private final Event<ServerEvent> eventsHandler;
     private final TextWriter writer;
 
+    private String roomName;
+
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
+    }
+
     Worker(Socket socket, Event<ServerEvent> eventsHandler) {
         this.socket = socket;
         this.eventsHandler = eventsHandler;
