@@ -49,7 +49,7 @@ public class ChatServer {
     }
 
     private void createWorker(Socket socket) {
-        var worker = new Worker(socket, eventsHandler);
+        var worker = new Worker(socket, eventsHandler, "general");
         serverWorkers.add(worker);
         executorService.execute(worker);
     }
