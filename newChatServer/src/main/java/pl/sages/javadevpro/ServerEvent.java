@@ -8,6 +8,7 @@ class ServerEvent {
     private final ServerEventType type;
     private String payload;
     private Worker source;
+    private String roomName;
 
     ServerEvent(ServerEventType type) {
         this.type = type;
