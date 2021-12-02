@@ -35,10 +35,16 @@ public class TextReader {
         String text;
         try {
             while ((text = reader.readLine()) != null) {
-                textConsumer.accept(text);
+                if (text.startsWith("SERVER:")) {
+                    processServerMessage(text);
+                } else {
+                    textConsumer.accept(text);
+                }
             }
         } catch (IOException e) {
             log.severe("Read message failed: " + e.getMessage());
+        } catch (RuntimeException e) {
+            System.err.println("SERVER: Connection refused - your name is not unique");
         }
         finally {
             if (onClose != null) {
@@ -47,4 +53,11 @@ public class TextReader {
         }
     }
 
+    private void processServerMessage(String serverMessage) {
+        if (serverMessage.contains("Name accepted.")) {
+            System.err.println("SERVER: Connection established - you are connected to general room");
+        } else {
+            throw new RuntimeException("User name not unique");
+        }
+    }
 }

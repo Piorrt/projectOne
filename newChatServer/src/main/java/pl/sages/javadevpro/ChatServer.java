@@ -57,9 +57,9 @@ public class ChatServer {
     private void createWorker(Socket socket, String name) throws IOException {
         var worker = new Worker(socket, eventsHandler, name, "general");
         if (serverWorkers.add(worker)){
-            new PrintWriter(socket.getOutputStream(), true).println("Name accepted.");
+            new PrintWriter(socket.getOutputStream(), true).println("SERVER: Name accepted.");
         } else {
-            new PrintWriter(socket.getOutputStream(), true).println("Name already exist!");
+            new PrintWriter(socket.getOutputStream(), true).println("SERVER: Name already exist!");
         }
         executorService.execute(worker);
     }

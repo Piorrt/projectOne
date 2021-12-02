@@ -14,9 +14,10 @@ class ServerWorkers {
 
     boolean add(Worker worker) {
         lock.writeLock().lock();
-        Worker existingWorker = workers
+        String existingWorker = workers
                 .stream()
-                .filter(w -> w.getName().equals(worker.getName()))
+                .map(user -> user.getName())
+                .filter(name -> worker.getName().equals(name))
                 .findAny()
                 .orElse(null);
 
