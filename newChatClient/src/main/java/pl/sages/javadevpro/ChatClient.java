@@ -36,23 +36,7 @@ public class ChatClient {
     }
 
     private void start() {
-
         onMessage.accept(name);
-        try {
-//            var writer = new PrintWriter(socket.getOutputStream(), true);
-            var reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-//            writer.println(name);
-            var text = reader.readLine();
-            if(!text.equals("Name accepted.")) {
-                System.out.println("Name " + name + " already exist!");
-                exit(1);
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         new Thread(readFromSocket).start();
         var consoleReader = new Thread(readFromConsole);
         consoleReader.setDaemon(true);
