@@ -6,8 +6,7 @@ import pl.sages.javadevpro.commons.TextWriter;
 
 import java.net.Socket;
 
-import static pl.sages.javadevpro.ServerEventType.CONNECTION_CLOSED;
-import static pl.sages.javadevpro.ServerEventType.MESSAGE_RECEIVED;
+import static pl.sages.javadevpro.ServerEventType.*;
 
 class Worker implements Runnable {
 
@@ -16,12 +15,14 @@ class Worker implements Runnable {
     private final TextWriter writer;
 
     private String roomName;
+    private String name;
 
 
-    Worker(Socket socket, Event<ServerEvent> eventsHandler, String roomName) {
+    Worker(Socket socket, Event<ServerEvent> eventsHandler, String name, String roomName) {
         this.socket = socket;
         this.eventsHandler = eventsHandler;
         this.roomName = roomName;
+        this.name = name;
         writer = new TextWriter(socket);
     }
 
@@ -38,8 +39,16 @@ class Worker implements Runnable {
         return roomName;
     }
 
+    public String getName() {
+        return name;
+    }
+
     private void onText(String text) {
-        eventsHandler.fire(new ServerEvent(MESSAGE_RECEIVED, text, this));
+        if(text.startsWith("/")) {
+            eventsHandler.fire(new ServerEvent(COMMAND_RECEIVED, text, this));
+        } else {
+            eventsHandler.fire(new ServerEvent(MESSAGE_RECEIVED, text, this));
+        }
     }
 
     private void onInputClose() {

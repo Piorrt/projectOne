@@ -7,11 +7,15 @@ import jakarta.inject.Inject;
 import lombok.RequiredArgsConstructor;
 import pl.sages.javadevpro.commons.Sockets;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 
+import static java.lang.System.exit;
 import static java.lang.System.getProperty;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static pl.sages.javadevpro.ServerEventType.CONNECTION_ACCEPTED;
@@ -44,13 +48,19 @@ public class ChatServer {
         while (true) {
             var socket = serverSocket.accept();
             eventsHandler.fire(new ServerEvent(CONNECTION_ACCEPTED));
-            createWorker(socket);
+
+            String name = new BufferedReader(new InputStreamReader(socket.getInputStream())).readLine();
+            createWorker(socket, name);
         }
     }
 
-    private void createWorker(Socket socket) {
-        var worker = new Worker(socket, eventsHandler, "general");
-        serverWorkers.add(worker);
+    private void createWorker(Socket socket, String name) throws IOException {
+        var worker = new Worker(socket, eventsHandler, name, "general");
+        if (serverWorkers.add(worker)){
+            new PrintWriter(socket.getOutputStream(), true).println("Name accepted.");
+        } else {
+            new PrintWriter(socket.getOutputStream(), true).println("Name already exist!");
+        }
         executorService.execute(worker);
     }
 
