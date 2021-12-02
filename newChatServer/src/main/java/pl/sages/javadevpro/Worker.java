@@ -6,7 +6,9 @@ import pl.sages.javadevpro.commons.TextWriter;
 
 import java.net.Socket;
 
-import static pl.sages.javadevpro.ServerEventType.*;
+import static pl.sages.javadevpro.ServerEventType.COMMAND_RECEIVED;
+import static pl.sages.javadevpro.ServerEventType.CONNECTION_CLOSED;
+import static pl.sages.javadevpro.ServerEventType.MESSAGE_RECEIVED;
 
 class Worker implements Runnable {
 

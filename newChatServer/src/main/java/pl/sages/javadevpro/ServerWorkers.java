@@ -1,6 +1,7 @@
 package pl.sages.javadevpro;
 
 import jakarta.inject.Singleton;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -14,21 +15,18 @@ class ServerWorkers {
 
     boolean add(Worker worker) {
         lock.writeLock().lock();
-        String existingWorker = workers
+        boolean workerExists = workers
                 .stream()
-                .map(user -> user.getName())
-                .filter(name -> worker.getName().equals(name))
-                .findAny()
-                .orElse(null);
+                .anyMatch(user -> worker.getName().equals(user.getName()));
 
-        boolean result = true;
-        if(existingWorker == null) {
-            workers.add(worker);
-        } else {
-            result = false;
+        if (workerExists) {
+            lock.writeLock().unlock();
+            return false;
         }
+
+        workers.add(worker);
         lock.writeLock().unlock();
-        return result;
+        return true;
     }
 
     void remove(Worker worker) {
@@ -40,8 +38,8 @@ class ServerWorkers {
     void broadcast(String text, String chatRoom) {
         lock.readLock().lock();
         workers.stream()
-            .filter(worker -> worker.getRoomName().equals(chatRoom))
-            .forEach(worker -> worker.send(text));
+                .filter(worker -> worker.getRoomName().equals(chatRoom))
+                .forEach(worker -> worker.send(text));
         lock.readLock().unlock();
     }
 
