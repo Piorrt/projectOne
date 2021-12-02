@@ -19,6 +19,9 @@ class ServerEventsLogger {
             case CONNECTION_CLOSED:
                 log.info("Connection form client closed.");
                 break;
+            case COMMAND_RECEIVED:
+                log.info("Command form client received.");
+                break;
         }
     }
 

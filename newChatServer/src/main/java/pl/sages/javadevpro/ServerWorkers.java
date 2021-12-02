@@ -12,10 +12,22 @@ class ServerWorkers {
     private Set<Worker> workers = new HashSet<>();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
-    void add(Worker worker) {
+    boolean add(Worker worker) {
         lock.writeLock().lock();
-        workers.add(worker);
+        Worker existingWorker = workers
+                .stream()
+                .filter(w -> w.getName().equals(worker.getName()))
+                .findAny()
+                .orElse(null);
+
+        boolean result = true;
+        if(existingWorker == null) {
+            workers.add(worker);
+        } else {
+            result = false;
+        }
         lock.writeLock().unlock();
+        return result;
     }
 
     void remove(Worker worker) {
@@ -31,5 +43,7 @@ class ServerWorkers {
             .forEach(worker -> worker.send(text));
         lock.readLock().unlock();
     }
+
+    //join to another room
 
 }
